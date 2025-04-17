@@ -1,6 +1,14 @@
-# ms_functions
+##############################
+#### MULTISTATE FUNCTIONS ####
+##############################
 
-# separate functions to run ms-analyses + assumption plots
+# Code for paper by Komulainen et al.
+# Loneliness and social isolation in transitions to adverse health conditions 
+# and mortality: an analysis of data from the UK Biobank study
+
+# This file includes all functions and variable definitions needed to run the analyses.
+
+#########################################
 
 # State-matrix 
 tmat <- matrix(NA, 3, 3)
@@ -337,9 +345,9 @@ ms_analysis_si_sex <- function(diag, time_var, death_var, sex_val) {
 
 
 
-#################################
-#### MARKOV ASSUMPTION MODEL ####
-#################################
+#############################################
+#### MARKOV ASSUMPTION DIAGNOSTIC MODELS ####
+#############################################
 
 # Loneliness
 ms_analysis_lon_markov <- function(diag, time_var, death_var) {
@@ -486,45 +494,14 @@ res_list_to_tab <- function(tab_list) {
     select(-term) 
 }
 
-################################
-# oletusfunktiot (THESE OUT FOR SHARED FILE)
 
-# function to add diagnosis in list
-add_diag_tolist <- function(list, i) {
-  c(list, diag = i)
+# funktio taulukon muotoiluun
+get_time_diag_hr <- function(model) {
+  
+  hr <- model[["c2"]] |> 
+    tidy(conf.int = TRUE, exponentiate = TRUE) |> 
+    filter(term == "time_diag.3") |>
+    mutate(HR_CI = paste0(round(estimate, 3), " (", round(conf.low, 3), "–", round(conf.high, 3), ")")) |>
+    select(HR_CI)
 }
-
-# ph test
-save_test.ph <- function(model) {
-  print(model[["diag"]])
-  test.ph <- list()
-  test.ph[["c1"]] <- cox.zph(model[["c1"]])
-  test.ph
-}
-
-# funktio baseline hazardien ajamiseen
-baseline.haz <- function(model, covs_v, newd_exp) {
-  
-  print(model[["diag"]])
-  
-  dg <- model[["diag"]]
-  time_var <- paste0("time_", dg)
-  
-  newd_d <- newd_exp |> select(all_of(covs_v), trans, time_var)
-  attr(newd_d, "trans") <- tmat
-  class(newd_d) <- c("msdata", "data.frame")
-  newd_d <- expand.covs(newd_d, covs=c(covs_v, time_var))
-  newd_d$strata = 1:3
-  
-  # estimate baseline hazards
-  msf0 <- msfit(model[["c0"]], newdata = newd_d, trans = tmat)
-  newd_d$strata = c(1, 2, 2)
-  newd_d$diagnosis <- c(0, 0, 1)
-  msf1 <- msfit(model[["c1"]], newdata = newd_d, trans = tmat)
-  
-  list(msf0 = msf0, msf1 = msf1)
-  
-}
-
-
 

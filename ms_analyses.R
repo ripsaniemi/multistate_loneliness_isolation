@@ -88,7 +88,7 @@ ms_analyses_lon_male <- lapply(list_C2_sex[c("C6063")], ms_analysis_lon_sex,
                            time_var = "time_c", death_var = "death_c", sex_val = 1)
 
 # combine lists
-lon_res_list <- c(ms_analyseslon_, ms_analyses_lon_C, ms_analyses_lon_female, ms_analyses_lon_male)
+lon_res_list <- c(ms_analyses_lon, ms_analyses_lon_C, ms_analyses_lon_female, ms_analyses_lon_male)
 
 # order list items
 lon_res_list <- lon_res_list[diags_order]
@@ -200,7 +200,6 @@ markov_si_C_male <- lapply(list_C2_sex[c("C6063")], ms_analysis_si_markov_sex,
 
 # combine all
 markov_si_all <- c(markov_si, markov_si_C, markov_si_C_female, markov_si_C_male)
-
 
 ###################################################
 

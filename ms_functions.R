@@ -2,9 +2,11 @@
 #### MULTISTATE FUNCTIONS ####
 ##############################
 
-# Code for paper by Komulainen et al.
-# Loneliness and social isolation in transitions to adverse health conditions 
-# and mortality: an analysis of data from the UK Biobank study
+# Code for paper by Komulainen et al. (2025)
+# Loneliness and social isolation in transitions to adverse health conditions and mortality: an analysis of data from the UK Biobank study
+
+# Code written by Ripsa Niemi & Mai Gutvilig
+# 22.04.2025
 
 # This file includes all functions and variable definitions needed to run the analyses.
 
@@ -35,6 +37,7 @@ for(i in 1:length(dgs)) {
 }
 
 ################ cancers C to list ###################
+
 cans <- c( "C", "C0014", "C1526", "C3039", "C4041", "C4344", "C4549", "C6468",
           "C6972", "C7375", "C8196", "D0009")
 
@@ -64,29 +67,37 @@ for(i in 1:length(cans_sex)) {
 }
 
 #####################################################
-# Diagnosis lists
-
 # long names of diagnoses in order
-diags_names_order <- c("Any neoplasm", "Malignant neoplasms of lip, oral cavity and pharynx (C00–C14)", 
+diags_names_order <- c("Any neoplasm", 
+                       "Malignant neoplasms of lip, oral cavity and pharynx (C00–C14)", 
                        "Malignant neoplasms of digestive organs (C15–C26)", 
                        "Malignant neoplasms of respiratory and intrathoracic organs (C30–C39)", 
                        "Malignant neoplasms of bone and articular cartilage (C40–C41)", 
                        "Melanoma & other malignant neoplasms of skin (C43–C44)", 
                        "Malignant neoplasms of mesothelial and soft tissue (C45–C49)", 
-                       "Malignant neoplasms of breast (C50)", "Malignant neoplasms of female genital organs (C51–C58)", 
-                       "Malignant neoplasms of male genital organs (C60–C63)", "Malignant neoplasms of urinary tract (C64–C68)", 
+                       "Malignant neoplasms of breast (C50)", 
+                       "Malignant neoplasms of female genital organs (C51–C58)", 
+                       "Malignant neoplasms of male genital organs (C60–C63)", 
+                       "Malignant neoplasms of urinary tract (C64–C68)", 
                        "Malignant neoplasms of eye, brain and other parts of central nervous system (C69–C72)", 
                        "Malignant neoplasms of thyroid and other endocrine glands (C73–C75)", 
                        "Malignant neoplasms of lymphoid, hematopoietic and related tissue (C81–C96)", 
                        "In situ neoplasms (D00–D09)", 
                        "Any endocrine, nutritional or metabolic disease", 
-                       "Disorders of thyroid gland (E00–E07)", "Diabetes mellitus (E10–E14)", 
+                       "Disorders of thyroid gland (E00–E07)", 
+                       "Diabetes mellitus (E10–E14)", 
                        "Other disorders of glucose regulation and pancreatic internal secretion (E15–E16)", 
-                       "Disorders of other endocrine glands (E20–E35)", "Malnutrition and other nutritional deficiencies (E40–E64)", 
-                       "Obesity & other hyperalimentation (E65–E68)", "Metabolic disorders (E78–E88)", 
-                       "Any circulatory disease", "Chronic rheumatic heart diseases (I05–I09)", "Hypertensive diseases (I10–I15)", 
-                       "Ischaemic heart diseases (I20–I25)","Pulmonary heart disease and diseases of pulmonary circulation (I26–I28)", 
-                       "Other forms of heart disease (I30–I52)", "Cerebrovascular diseases (I60–I69)", 
+                       "Disorders of other endocrine glands (E20–E35)", 
+                       "Malnutrition and other nutritional deficiencies (E40–E64)", 
+                       "Obesity & other hyperalimentation (E65–E68)", 
+                       "Metabolic disorders (E78–E88)", 
+                       "Any circulatory disease", 
+                       "Chronic rheumatic heart diseases (I05–I09)", 
+                       "Hypertensive diseases (I10–I15)", 
+                       "Ischaemic heart diseases (I20–I25)",
+                       "Pulmonary heart disease and diseases of pulmonary circulation (I26–I28)", 
+                       "Other forms of heart disease (I30–I52)", 
+                       "Cerebrovascular diseases (I60–I69)", 
                        "Diseases of arteries, arterioles, and capillaries (I70–I79)", 
                        "Other diseases of veins, lymphatic vessels, and lymph nodes (I80–I89)", 
                        "Other & unspecified disorders of the circulatory system (I95–I99)")
@@ -185,14 +196,14 @@ data_prep_func <- function(diag, time_var, death_var, data) {
 ########## MAIN MODELS ##########
 #################################
 
-# Loneliness model
+# Loneliness
 ms_analysis_lon <- function(diag, time_var, death_var) {
   
   # run data prep function
   dat_ms <- data_prep_func(diag, time_var, death_var, dat)
 
   # MODEL 0: stratified baseline hazards
-  c0 <- coxph(Surv(Tstart, Tstop, status) ~  loneliness.1 + loneliness.2 + loneliness.3 +
+  m0 <- coxph(Surv(Tstart, Tstop, status) ~  loneliness.1 + loneliness.2 + loneliness.3 +
                 sex.1 + sex.2 + sex.3 +
                 white_1.1 + white_1.2 + white_1.3 +
                 white_999.1 + white_999.2 + white_999.3 +
@@ -206,7 +217,7 @@ ms_analysis_lon <- function(diag, time_var, death_var) {
                 strata(trans), data=dat_ms)
   
   # MODEL 1: proportional baseline hazards
-  c1 <- coxph(Surv(Tstart, Tstop, status) ~  loneliness.1 + loneliness.2 + loneliness.3 +
+  m1 <- coxph(Surv(Tstart, Tstop, status) ~  loneliness.1 + loneliness.2 + loneliness.3 +
                 sex.1 + sex.2 + sex.3 +
                 white_1.1 + white_1.2 + white_1.3 +
                 white_999.1 + white_999.2 + white_999.3 +
@@ -219,12 +230,12 @@ ms_analysis_lon <- function(diag, time_var, death_var) {
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
                 diagnosis + strata(to), data=dat_ms)
   
-  models <- list(c0 = c0, c1 = c1)
+  models <- list(m0 = m0, m1 = m1)
   models
   
 }
 
-# sex-specific loneliness
+# Sex-specific loneliness
 ms_analysis_lon_sex <- function(diag, time_var, death_var, sex_val) {
   
   # keep only wanted sex
@@ -236,7 +247,7 @@ ms_analysis_lon_sex <- function(diag, time_var, death_var, sex_val) {
   
   #########
   # MODEL 0: stratified baseline hazards
-  c0 <- coxph(Surv(Tstart, Tstop, status) ~  loneliness.1 + loneliness.2 + loneliness.3 + 
+  m0 <- coxph(Surv(Tstart, Tstop, status) ~  loneliness.1 + loneliness.2 + loneliness.3 + 
                 white_1.1 + white_1.2 + white_1.3 + 
                 white_999.1 + white_999.2 + white_999.3 + 
                 age.1 + age.2 + age.3 +
@@ -249,7 +260,7 @@ ms_analysis_lon_sex <- function(diag, time_var, death_var, sex_val) {
                 strata(trans), data=dat_ms)
   
   # MODEL 1: proportional baseline hazards
-  c1 <- coxph(Surv(Tstart, Tstop, status) ~  loneliness.1 + loneliness.2 + loneliness.3 + 
+  m1 <- coxph(Surv(Tstart, Tstop, status) ~  loneliness.1 + loneliness.2 + loneliness.3 + 
                 white_1.1 + white_1.2 + white_1.3 + 
                 white_999.1 + white_999.2 + white_999.3 + 
                 age.1 + age.2 + age.3 +
@@ -261,18 +272,18 @@ ms_analysis_lon_sex <- function(diag, time_var, death_var, sex_val) {
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
                 diagnosis + strata(to), data=dat_ms)
 
-  models <- list(c0 = c0, c1 = c1)
+  models <- list(m0 = m0, m1 = m1)
   models
 }
 
-# Social isolation model
+# Social isolation
 ms_analysis_si <- function(diag, time_var, death_var) {
 
   # prep the data
   dat_ms <- data_prep_func(diag, time_var, death_var, dat)
   
   # MODEL 0: stratified baseline hazards
-  c0 <- coxph(Surv(Tstart, Tstop, status) ~  isolate_bin.1 + isolate_bin.2 + isolate_bin.3 +
+  m0 <- coxph(Surv(Tstart, Tstop, status) ~  isolate_bin.1 + isolate_bin.2 + isolate_bin.3 +
                 sex.1 + sex.2 + sex.3 +
                 white_1.1 + white_1.2 + white_1.3 +
                 white_999.1 + white_999.2 + white_999.3 +
@@ -286,7 +297,7 @@ ms_analysis_si <- function(diag, time_var, death_var) {
                 strata(trans), data=dat_ms)
   
   # MODEL 1: proportional baseline hazards
-  c1 <- coxph(Surv(Tstart, Tstop, status) ~  isolate_bin.1 + isolate_bin.2 + isolate_bin.3 +
+  m1 <- coxph(Surv(Tstart, Tstop, status) ~  isolate_bin.1 + isolate_bin.2 + isolate_bin.3 +
                 sex.1 + sex.2 + sex.3 +
                 white_1.1 + white_1.2 + white_1.3 +
                 white_999.1 + white_999.2 + white_999.3 +
@@ -299,11 +310,11 @@ ms_analysis_si <- function(diag, time_var, death_var) {
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
                 diagnosis + strata(to), data=dat_ms)
 
-  models <- list(c0 = c0, c1 = c1)
+  models <- list(m0 = m0, m1 = m1)
   models
 }
 
-# gender specific
+# Sex-specific social isolation
 ms_analysis_si_sex <- function(diag, time_var, death_var, sex_val) {
   
   # keep only wanted sex
@@ -314,7 +325,7 @@ ms_analysis_si_sex <- function(diag, time_var, death_var, sex_val) {
   dat_ms <- data_prep_func(diag, time_var, death_var, data_sex)
   
   # MODEL 0: stratified baseline hazards
-  c0 <- coxph(Surv(Tstart, Tstop, status) ~  isolate_bin.1 + isolate_bin.2 + isolate_bin.3 + 
+  m0 <- coxph(Surv(Tstart, Tstop, status) ~  isolate_bin.1 + isolate_bin.2 + isolate_bin.3 + 
                 white_1.1 + white_1.2 + white_1.3 + 
                 white_999.1 + white_999.2 + white_999.3 + 
                 age.1 + age.2 + age.3 +
@@ -327,7 +338,7 @@ ms_analysis_si_sex <- function(diag, time_var, death_var, sex_val) {
                 strata(trans), data=dat_ms)
   
   # MODEL 1: proportional baseline hazards
-  c1 <- coxph(Surv(Tstart, Tstop, status) ~  isolate_bin.1 + isolate_bin.2 + isolate_bin.3 + 
+  m1 <- coxph(Surv(Tstart, Tstop, status) ~  isolate_bin.1 + isolate_bin.2 + isolate_bin.3 + 
                 white_1.1 + white_1.2 + white_1.3 + 
                 white_999.1 + white_999.2 + white_999.3 + 
                 age.1 + age.2 + age.3 +
@@ -339,7 +350,7 @@ ms_analysis_si_sex <- function(diag, time_var, death_var, sex_val) {
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
                 diagnosis + strata(to), data=dat_ms)
 
-  models <- list(c0 = c0, c1 = c1)
+  models <- list(m0 = m0, m1 = m1)
   models
 }
 
@@ -360,7 +371,7 @@ ms_analysis_lon_markov <- function(diag, time_var, death_var) {
   dat_ms <- dat_ms %>% mutate(time_diag.3 = get(time_dg))
   
   # MODEL 2: time to diagnosis (for trans 3) included in the model
-  c2 <- coxph(Surv(Tstart, Tstop, status) ~  loneliness.1 + loneliness.2 + loneliness.3 +
+  m2 <- coxph(Surv(Tstart, Tstop, status) ~  loneliness.1 + loneliness.2 + loneliness.3 +
                 sex.1 + sex.2 + sex.3 +
                 white_1.1 + white_1.2 + white_1.3 +
                 white_999.1 + white_999.2 + white_999.3 +
@@ -373,12 +384,12 @@ ms_analysis_lon_markov <- function(diag, time_var, death_var) {
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
                 diagnosis + time_diag.3 + strata(to), data=dat_ms)
 
-  models <- list(c2 = c2)
+  models <- list(m2 = m2)
   models
   
 }
 
-# loneliness sex-specific
+# Sex-specific loneliness
 ms_analysis_lon_markov_sex <- function(diag, time_var, death_var, sex_val) {
   
   # keep only wanted sex
@@ -393,7 +404,7 @@ ms_analysis_lon_markov_sex <- function(diag, time_var, death_var, sex_val) {
   dat_ms <- dat_ms %>% mutate(time_diag.3 = get(time_dg))
   
   # MODEL 2: time to diagnosis (for trans 3) included in the model
-  c2 <- coxph(Surv(Tstart, Tstop, status) ~  loneliness.1 + loneliness.2 + loneliness.3 +
+  m2 <- coxph(Surv(Tstart, Tstop, status) ~  loneliness.1 + loneliness.2 + loneliness.3 +
                 white_1.1 + white_1.2 + white_1.3 +
                 white_999.1 + white_999.2 + white_999.3 +
                 age.1 + age.2 + age.3 +
@@ -405,7 +416,7 @@ ms_analysis_lon_markov_sex <- function(diag, time_var, death_var, sex_val) {
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
                 diagnosis + time_diag.3 + strata(to), data=dat_ms)
   
-  models <- list(c2 = c2)
+  models <- list(m2 = m2)
   models
   
 }
@@ -421,7 +432,7 @@ ms_analysis_si_markov <- function(diag, time_var, death_var) {
   dat_ms <- dat_ms %>% mutate(time_diag.3 = get(time_dg))
   
   # MODEL 2: time to diagnosis (for trans 3) included in the model
-  c2 <- coxph(Surv(Tstart, Tstop, status) ~  isolate_bin.1 + isolate_bin.2 + isolate_bin.3 +
+  m2 <- coxph(Surv(Tstart, Tstop, status) ~  isolate_bin.1 + isolate_bin.2 + isolate_bin.3 +
                 sex.1 + sex.2 + sex.3 +
                 white_1.1 + white_1.2 + white_1.3 +
                 white_999.1 + white_999.2 + white_999.3 +
@@ -434,11 +445,11 @@ ms_analysis_si_markov <- function(diag, time_var, death_var) {
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
                 diagnosis + time_diag.3 + strata(to), data=dat_ms)
   
-  models <- list(c2 = c2)
+  models <- list(m2 = m2)
   models
 }
 
-# gender specific
+# Sex-specific social isolation 
 ms_analysis_si_markov_sex <- function(diag, time_var, death_var, sex_val) {
   
   # keep only wanted sex
@@ -453,7 +464,7 @@ ms_analysis_si_markov_sex <- function(diag, time_var, death_var, sex_val) {
   dat_ms <- dat_ms %>% mutate(time_diag.3 = get(time_dg))
   
   # MODEL 2: time to diagnosis (for trans 3) included in the model
-  c2 <- coxph(Surv(Tstart, Tstop, status) ~  isolate_bin.1 + isolate_bin.2 + isolate_bin.3 +
+  m2 <- coxph(Surv(Tstart, Tstop, status) ~  isolate_bin.1 + isolate_bin.2 + isolate_bin.3 +
                 white_1.1 + white_1.2 + white_1.3 +
                 white_999.1 + white_999.2 + white_999.3 +
                 age.1 + age.2 + age.3 +
@@ -465,7 +476,7 @@ ms_analysis_si_markov_sex <- function(diag, time_var, death_var, sex_val) {
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
                 diagnosis + time_diag.3 + strata(to), data=dat_ms)
   
-  models <- list(c2 = c2)
+  models <- list(m2 = m2)
   models
 }
 
@@ -495,10 +506,10 @@ res_list_to_tab <- function(tab_list) {
 }
 
 
-# funktio taulukon muotoiluun
+# function to get markov assumption diagnostic model estimate
 get_time_diag_hr <- function(model) {
   
-  hr <- model[["c2"]] |> 
+  hr <- model[["m2"]] |> 
     tidy(conf.int = TRUE, exponentiate = TRUE) |> 
     filter(term == "time_diag.3") |>
     mutate(HR_CI = paste0(round(estimate, 3), " (", round(conf.low, 3), "–", round(conf.high, 3), ")")) |>

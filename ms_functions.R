@@ -3,10 +3,11 @@
 ##############################
 
 # Code for paper by Komulainen et al. (2025)
-# Loneliness and social isolation in transitions to adverse health conditions and mortality: an analysis of data from the UK Biobank study
+# Loneliness and social isolation in transitions to adverse health conditions and mortality: 
+# an analysis of data from the UK Biobank study
 
 # Code written by Ripsa Niemi & Mai Gutvilig
-# 22.04.2025
+# 18.8.2025
 
 # This file includes all functions and variable definitions needed to run the analyses.
 
@@ -118,7 +119,9 @@ dg_keys <- as.list(diags_names_order) |> setNames(diags_order)
 covs_lon <- c("loneliness",
               "sex", "white_1", "white_999", "age", 
               "depgroup_1", "depgroup_2", "depgroup_999",
-              "edugroup_1", "edugroup_2", "edugroup_999")
+              "edugroup_1", "edugroup_2", "edugroup_999",
+              "work_2", "work_3", "work_999",
+              "md_b4_1", "md_b4_999")
 
 covs_si <- covs_lon
 covs_si[1] <- "isolate_bin"
@@ -128,6 +131,8 @@ newd_lon <- data.frame(loneliness = rep(0, 3), age = rep(0, 3), sex = rep(0,3),
                        white_1= rep(0, 3), white_999= rep(0, 3),
                        edugroup_1 = rep(0,3), edugroup_2 = rep(0,3), edugroup_999 = rep(0,3),
                        depgroup_1 = rep(0,3), depgroup_2 = rep(0,3), depgroup_999 = rep(0,3),
+                       work_2 = rep(0,3), work_3 = rep(0,3), work_999 = rep(0,3),
+                       md_b4_1 = rep(0,3), md_b4_999 = rep(0,3),
                        death= rep(0, 3), trans = 1:3, 
                        time_C = rep(0, 3), time_C0014 = rep(0, 3), time_C1526 = rep(0, 3), 
                        time_C3039 = rep(0, 3), time_C4041 = rep(0, 3), time_C4344 = rep(0, 3),
@@ -152,16 +157,15 @@ data_prep_func <- function(diag, time_var, death_var, data) {
   
   # Data according to current diagnosis
   dat_diag <- data %>% 
-    select(diag[1], diag[2], loneliness, isolate_bin, death, time, death_c, time_c, sex, age, white, edugroup, depgroup) %>% 
+    select(diag[1], diag[2], loneliness, isolate_bin, death, time, death_c, time_c, 
+           sex, age, white, edugroup, depgroup, work, md_b4, lon_iso) %>% 
     mutate(death2 = get(death_var),
            time2 = get(time_var)) %>%
     select(-time, -death, -death_c, -time_c) %>%
     rename(death = death2,
            time = time2) %>%
     drop_na()  %>%
-    dummy_cols(select_columns = "white") %>%
-    dummy_cols(select_columns = "edugroup") %>%
-    dummy_cols(select_columns = "depgroup")
+    dummy_cols(select_columns = c("white", "edugroup", "depgroup", "work", "md_b4"))
   
   # which diagnosis is running
   print(diag[1])
@@ -171,7 +175,9 @@ data_prep_func <- function(diag, time_var, death_var, data) {
             "white_1", "white_999", 
             "age", "loneliness", "isolate_bin",
             "edugroup_1", "edugroup_2", "edugroup_999",
-            "depgroup_1", "depgroup_2", "depgroup_999")
+            "depgroup_1", "depgroup_2", "depgroup_999",
+            "work_2", "work_3", "work_999",
+            "md_b4_1", "md_b4_999")
   
   # multistate prep function
   dat_prep <- msprep(time = c(NA, diag[2], "time"), 
@@ -214,6 +220,11 @@ ms_analysis_lon <- function(diag, time_var, death_var) {
                 depgroup_1.1 + depgroup_1.2 + depgroup_1.3 +
                 depgroup_2.1 + depgroup_2.2 + depgroup_2.3 +
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
+                work_2.1 + work_2.2 + work_2.3 +
+                work_3.1 + work_3.2 + work_3.3 +
+                work_999.1 + work_999.2 + work_999.3 +
+                md_b4_1.1 + md_b4_1.2 + md_b4_1.3 +
+                md_b4_999.1 + md_b4_999.2 + md_b4_999.3 +
                 strata(trans), data=dat_ms)
   
   # MODEL 1: proportional baseline hazards
@@ -228,6 +239,11 @@ ms_analysis_lon <- function(diag, time_var, death_var) {
                 depgroup_1.1 + depgroup_1.2 + depgroup_1.3 +
                 depgroup_2.1 + depgroup_2.2 + depgroup_2.3 +
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
+                work_2.1 + work_2.2 + work_2.3 +
+                work_3.1 + work_3.2 + work_3.3 +
+                work_999.1 + work_999.2 + work_999.3 +
+                md_b4_1.1 + md_b4_1.2 + md_b4_1.3 +
+                md_b4_999.1 + md_b4_999.2 + md_b4_999.3 +
                 diagnosis + strata(to), data=dat_ms)
   
   models <- list(m0 = m0, m1 = m1)
@@ -257,6 +273,11 @@ ms_analysis_lon_sex <- function(diag, time_var, death_var, sex_val) {
                 depgroup_1.1 + depgroup_1.2 + depgroup_1.3 +
                 depgroup_2.1 + depgroup_2.2 + depgroup_2.3 +
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
+                work_2.1 + work_2.2 + work_2.3 +
+                work_3.1 + work_3.2 + work_3.3 +
+                work_999.1 + work_999.2 + work_999.3 +
+                md_b4_1.1 + md_b4_1.2 + md_b4_1.3 +
+                md_b4_999.1 + md_b4_999.2 + md_b4_999.3 +
                 strata(trans), data=dat_ms)
   
   # MODEL 1: proportional baseline hazards
@@ -270,6 +291,11 @@ ms_analysis_lon_sex <- function(diag, time_var, death_var, sex_val) {
                 depgroup_1.1 + depgroup_1.2 + depgroup_1.3 +
                 depgroup_2.1 + depgroup_2.2 + depgroup_2.3 +
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
+                work_2.1 + work_2.2 + work_2.3 +
+                work_3.1 + work_3.2 + work_3.3 +
+                work_999.1 + work_999.2 + work_999.3 +
+                md_b4_1.1 + md_b4_1.2 + md_b4_1.3 +
+                md_b4_999.1 + md_b4_999.2 + md_b4_999.3 +
                 diagnosis + strata(to), data=dat_ms)
 
   models <- list(m0 = m0, m1 = m1)
@@ -294,6 +320,11 @@ ms_analysis_si <- function(diag, time_var, death_var) {
                 depgroup_1.1 + depgroup_1.2 + depgroup_1.3 +
                 depgroup_2.1 + depgroup_2.2 + depgroup_2.3 +
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
+                work_2.1 + work_2.2 + work_2.3 +
+                work_3.1 + work_3.2 + work_3.3 +
+                work_999.1 + work_999.2 + work_999.3 +
+                md_b4_1.1 + md_b4_1.2 + md_b4_1.3 +
+                md_b4_999.1 + md_b4_999.2 + md_b4_999.3 +
                 strata(trans), data=dat_ms)
   
   # MODEL 1: proportional baseline hazards
@@ -308,6 +339,11 @@ ms_analysis_si <- function(diag, time_var, death_var) {
                 depgroup_1.1 + depgroup_1.2 + depgroup_1.3 +
                 depgroup_2.1 + depgroup_2.2 + depgroup_2.3 +
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
+                work_2.1 + work_2.2 + work_2.3 +
+                work_3.1 + work_3.2 + work_3.3 +
+                work_999.1 + work_999.2 + work_999.3 +
+                md_b4_1.1 + md_b4_1.2 + md_b4_1.3 +
+                md_b4_999.1 + md_b4_999.2 + md_b4_999.3 +
                 diagnosis + strata(to), data=dat_ms)
 
   models <- list(m0 = m0, m1 = m1)
@@ -335,6 +371,11 @@ ms_analysis_si_sex <- function(diag, time_var, death_var, sex_val) {
                 depgroup_1.1 + depgroup_1.2 + depgroup_1.3 +
                 depgroup_2.1 + depgroup_2.2 + depgroup_2.3 +
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
+                work_2.1 + work_2.2 + work_2.3 +
+                work_3.1 + work_3.2 + work_3.3 +
+                work_999.1 + work_999.2 + work_999.3 +
+                md_b4_1.1 + md_b4_1.2 + md_b4_1.3 +
+                md_b4_999.1 + md_b4_999.2 + md_b4_999.3 +
                 strata(trans), data=dat_ms)
   
   # MODEL 1: proportional baseline hazards
@@ -348,6 +389,11 @@ ms_analysis_si_sex <- function(diag, time_var, death_var, sex_val) {
                 depgroup_1.1 + depgroup_1.2 + depgroup_1.3 +
                 depgroup_2.1 + depgroup_2.2 + depgroup_2.3 +
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
+                work_2.1 + work_2.2 + work_2.3 +
+                work_3.1 + work_3.2 + work_3.3 +
+                work_999.1 + work_999.2 + work_999.3 +
+                md_b4_1.1 + md_b4_1.2 + md_b4_1.3 +
+                md_b4_999.1 + md_b4_999.2 + md_b4_999.3 +
                 diagnosis + strata(to), data=dat_ms)
 
   models <- list(m0 = m0, m1 = m1)
@@ -382,6 +428,11 @@ ms_analysis_lon_markov <- function(diag, time_var, death_var) {
                 depgroup_1.1 + depgroup_1.2 + depgroup_1.3 +
                 depgroup_2.1 + depgroup_2.2 + depgroup_2.3 +
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
+                work_2.1 + work_2.2 + work_2.3 +
+                work_3.1 + work_3.2 + work_3.3 +
+                work_999.1 + work_999.2 + work_999.3 +
+                md_b4_1.1 + md_b4_1.2 + md_b4_1.3 +
+                md_b4_999.1 + md_b4_999.2 + md_b4_999.3 +
                 diagnosis + time_diag.3 + strata(to), data=dat_ms)
 
   models <- list(m2 = m2)
@@ -414,6 +465,11 @@ ms_analysis_lon_markov_sex <- function(diag, time_var, death_var, sex_val) {
                 depgroup_1.1 + depgroup_1.2 + depgroup_1.3 +
                 depgroup_2.1 + depgroup_2.2 + depgroup_2.3 +
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
+                work_2.1 + work_2.2 + work_2.3 +
+                work_3.1 + work_3.2 + work_3.3 +
+                work_999.1 + work_999.2 + work_999.3 +
+                md_b4_1.1 + md_b4_1.2 + md_b4_1.3 +
+                md_b4_999.1 + md_b4_999.2 + md_b4_999.3 +
                 diagnosis + time_diag.3 + strata(to), data=dat_ms)
   
   models <- list(m2 = m2)
@@ -443,6 +499,11 @@ ms_analysis_si_markov <- function(diag, time_var, death_var) {
                 depgroup_1.1 + depgroup_1.2 + depgroup_1.3 +
                 depgroup_2.1 + depgroup_2.2 + depgroup_2.3 +
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
+                work_2.1 + work_2.2 + work_2.3 +
+                work_3.1 + work_3.2 + work_3.3 +
+                work_999.1 + work_999.2 + work_999.3 +
+                md_b4_1.1 + md_b4_1.2 + md_b4_1.3 +
+                md_b4_999.1 + md_b4_999.2 + md_b4_999.3 +
                 diagnosis + time_diag.3 + strata(to), data=dat_ms)
   
   models <- list(m2 = m2)
@@ -474,6 +535,11 @@ ms_analysis_si_markov_sex <- function(diag, time_var, death_var, sex_val) {
                 depgroup_1.1 + depgroup_1.2 + depgroup_1.3 +
                 depgroup_2.1 + depgroup_2.2 + depgroup_2.3 +
                 depgroup_999.1 + depgroup_999.2 + depgroup_999.3 +
+                work_2.1 + work_2.2 + work_2.3 +
+                work_3.1 + work_3.2 + work_3.3 +
+                work_999.1 + work_999.2 + work_999.3 +
+                md_b4_1.1 + md_b4_1.2 + md_b4_1.3 +
+                md_b4_999.1 + md_b4_999.2 + md_b4_999.3 +
                 diagnosis + time_diag.3 + strata(to), data=dat_ms)
   
   models <- list(m2 = m2)

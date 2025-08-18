@@ -4,10 +4,11 @@
 ##############################
 
 # Code for paper by Komulainen et al. (2025)
-# Loneliness and social isolation in transitions to adverse health conditions and mortality: an analysis of data from the UK Biobank study
+# Loneliness and social isolation in transitions to adverse health conditions and mortality: 
+# an analysis of data from the UK Biobank study
 
 # Code written by Ripsa Niemi & Mai Gutvilig
-# 22.04.2025
+# 18.8.2025
 
 # This file includes the needed packages, reading in the data, running the analyses and saving the results in .xlsx-files.
 
@@ -26,7 +27,7 @@ library(fastDummies)
 # Set working directory
 setwd("")
 
-# Read in the variables and functions of the other file
+# Read in the variables and functions from the other file
 source("ms_functions.R")
 
 #############################################################
@@ -39,19 +40,27 @@ dat <- read_dta("analysis_data.dta")
 # I stands for Any circulatory disease
 # C stands for Any neoplasm
 
-# Variable definitions in the data
+# Variable definitions
+
+# Confounders
 # sex = 0/1 (female/male)
 # white = 0/1/missing (other ethnicity/white ethnicity/missing)
-# depgroup = 0/1/2/missing (area deprivation lest/average/most/missing)
+# depgroup = 0/1/2/missing (residental area deprivation lest/average/most/missing)
 # edugroup = 0/1/2/missing (no secondary education/secondary education/university degree/missing)
+# work = 1/2/3/missing (employed/retired/other/missing)
+# md_b4 = 0/1/missing (prior psychological distress no/yes/missing)
+
+# Exposures
 # loneliness = 0/1 (not lonely/lonely at baseline)
 # isolate_bin = 0/1 (not isolated/isolated at baseline)
+
+# Outcomes
 # time = time (days) from baseline to death in E & I analyses
 # time_c = time (days) from baseline to death in C analyses
 # death = 0/1 died in E & I analyses
 # death_c = 0/1 died in C analyses
 
-# diagnosis-specific variables (E as an example)
+# Diagnosis-specific outcomes (E as an example)
 # time_E = time (days) from baseline to E diagnosis 
 # E_true = 0/1/. (no diagnosis/has diagnosis/excluded due to diagnosis prior baseline)
 

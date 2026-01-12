@@ -1,5 +1,7 @@
 # multistate_loneliness_isolation
-Code for unpublished paper by Komulainen et al. "Loneliness and social isolation in transitions to adverse health conditions and mortality: an analysis of data from the UK Biobank study"
+Code for paper by Komulainen et al. "Loneliness and social isolation in transitions to adverse health conditions and mortality: an analysis of data from the UK Biobank study"
+
+Cite: Komulainen K, Niemi R, Gutvilig M, et al. Loneliness and social isolation in transitions to adverse health conditions and mortality: an analysis of data from the UK Biobank studyJ Epidemiol Community Health Published Online First: 18 December 2025. doi: 10.1136/jech-2025-224665
 
 Code is written in R-language.
 
